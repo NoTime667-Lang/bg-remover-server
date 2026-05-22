@@ -180,7 +180,7 @@ def register_version():
     if auth != f"Bearer {ADMIN_PASSWORD}":
         return jsonify({"error": "Unauthorized"}), 401
 
-    data = request.get_json(silent=True) or {}
+    data = request.get_json(silent=True) or request.form.to_dict() or {}
     version = data.get("version")
     notes = data.get("notes", "")
     if not version:
