@@ -4,87 +4,245 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>BG Remover - Suppression de fond par IA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0d1117; color: #e6edf3; min-height: 100vh; }
-  .container { max-width: 720px; margin: 0 auto; padding: 60px 24px; }
-  h1 { font-size: 3rem; margin-bottom: 8px; background: linear-gradient(135deg, #58a6ff, #64ffda); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-  .subtitle { color: #8b949e; font-size: 1.2rem; margin-bottom: 40px; }
-  .card { background: #161b22; border: 1px solid #21262d; border-radius: 12px; padding: 32px; margin-bottom: 24px; }
-  .card h2 { color: #58a6ff; margin-bottom: 16px; }
-  .card p { color: #c9d1d9; line-height: 1.6; margin-bottom: 12px; }
-  .card ul { color: #c9d1d9; padding-left: 20px; line-height: 1.8; }
-  .btn { display: inline-block; background: #1f6feb; color: white; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 1.1rem; margin-top: 16px; transition: background 0.2s; }
-  .btn:hover { background: #388bfd; }
-  .btn.disabled { background: #21262d; color: #484f58; cursor: not-allowed; }
-  .badge { display: inline-block; background: #21262d; color: #8b949e; padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; }
-  .features { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
-  .feature { background: #161b22; border: 1px solid #21262d; border-radius: 8px; padding: 20px; }
-  .feature .icon { font-size: 2rem; margin-bottom: 8px; }
-  .feature h3 { font-size: 1rem; margin-bottom: 6px; }
-  .feature p { color: #8b949e; font-size: 0.9rem; }
-  footer { text-align: center; color: #484f58; font-size: 0.85rem; margin-top: 60px; }
-  @media (max-width: 600px) { .features { grid-template-columns: 1fr; } }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: #0a0a0f; color: #fff; overflow-x: hidden; }
+
+  /* ── Animated background ── */
+  .bg-wrap { position: fixed; inset: 0; z-index: -1; overflow: hidden; }
+  .bg-wrap .orb { position: absolute; border-radius: 50%; filter: blur(100px); opacity: 0.5; animation: orbFloat 20s ease-in-out infinite; }
+  .bg-wrap .orb:nth-child(1) { width: 500px; height: 500px; background: #4f46e5; top: -10%; left: -10%; animation-delay: 0s; }
+  .bg-wrap .orb:nth-child(2) { width: 400px; height: 400px; background: #06b6d4; bottom: -5%; right: -5%; animation-delay: -7s; }
+  .bg-wrap .orb:nth-child(3) { width: 350px; height: 350px; background: #8b5cf6; bottom: 40%; left: 50%; animation-delay: -14s; }
+  .bg-wrap .grid { position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px); background-size: 60px 60px; }
+
+  @keyframes orbFloat {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(60px, -40px) scale(1.1); }
+    66% { transform: translate(-30px, 50px) scale(0.9); }
+  }
+
+  /* ── Nav ── */
+  nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 16px 32px; display: flex; justify-content: space-between; align-items: center; backdrop-filter: blur(16px); background: rgba(10,10,15,.6); border-bottom: 1px solid rgba(255,255,255,.06); }
+  nav .logo { font-size: 1.3rem; font-weight: 800; background: linear-gradient(135deg, #818cf8, #22d3ee); -webkit-background-clip: text; -webkit-text-fill-color: transparent; display: flex; align-items: center; gap: 8px; }
+  nav .logo span { font-size: 1.4rem; -webkit-text-fill-color: initial; }
+  nav a { color: rgba(255,255,255,.6); text-decoration: none; font-size: .85rem; font-weight: 500; transition: color .2s; }
+  nav a:hover { color: #fff; }
+
+  /* ── Hero ── */
+  .hero { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 120px 24px 80px; position: relative; }
+  .hero .badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(79,70,229,.2); border: 1px solid rgba(79,70,229,.3); color: #a5b4fc; padding: 6px 16px; border-radius: 100px; font-size: .8rem; font-weight: 600; margin-bottom: 24px; animation: fadeUp .6s .2s both; }
+  .hero h1 { font-size: clamp(2.8rem, 8vw, 6rem); font-weight: 900; line-height: 1.05; letter-spacing: -.03em; margin-bottom: 20px; animation: fadeUp .6s .3s both; }
+  .hero h1 .grad { background: linear-gradient(135deg, #818cf8 0%, #22d3ee 50%, #f472b6 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-size: 200% 200%; animation: gradShift 6s ease-in-out infinite; }
+  .hero p { font-size: clamp(1rem, 2vw, 1.25rem); color: rgba(255,255,255,.5); max-width: 560px; line-height: 1.7; margin-bottom: 36px; animation: fadeUp .6s .4s both; }
+  .hero .btns { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; animation: fadeUp .6s .5s both; }
+  .hero .btn-primary { display: inline-flex; align-items: center; gap: 10px; padding: 16px 40px; border-radius: 14px; font-weight: 700; font-size: 1.05rem; text-decoration: none; color: #fff; background: linear-gradient(135deg, #4f46e5, #06b6d4); position: relative; overflow: hidden; transition: transform .2s, box-shadow .2s; }
+  .hero .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(79,70,229,.4); }
+  .hero .btn-primary::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, transparent 0%, rgba(255,255,255,.15) 50%, transparent 100%); transform: translateX(-100%); transition: transform .6s; }
+  .hero .btn-primary:hover::before { transform: translateX(100%); }
+  .hero .btn-secondary { display: inline-flex; align-items: center; gap: 8px; padding: 16px 32px; border-radius: 14px; font-weight: 600; font-size: 1rem; text-decoration: none; color: rgba(255,255,255,.7); background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.08); transition: all .2s; }
+  .hero .btn-secondary:hover { background: rgba(255,255,255,.1); color: #fff; }
+  .hero .version-info { margin-top: 24px; color: rgba(255,255,255,.25); font-size: .8rem; animation: fadeUp .6s .6s both; }
+
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes gradShift { 0%,100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+
+  /* ── Preview mockup ── */
+  .mockup { width: 100%; max-width: 900px; margin: 60px auto 0; border-radius: 20px; overflow: hidden; box-shadow: 0 24px 80px rgba(0,0,0,.5); border: 1px solid rgba(255,255,255,.06); animation: fadeUp .8s .7s both; }
+  .mockup img { width: 100%; display: block; }
+
+  /* ── Features ── */
+  .features { padding: 100px 24px; max-width: 1100px; margin: 0 auto; }
+  .features .label { text-align: center; color: #818cf8; font-weight: 700; font-size: .85rem; text-transform: uppercase; letter-spacing: .12em; margin-bottom: 12px; }
+  .features h2 { text-align: center; font-size: clamp(2rem, 4vw, 3rem); font-weight: 800; margin-bottom: 60px; }
+  .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
+  .feature-card { position: relative; padding: 32px; border-radius: 20px; background: rgba(255,255,255,.02); border: 1px solid rgba(255,255,255,.06); backdrop-filter: blur(8px); transition: all .3s; overflow: hidden; }
+  .feature-card::before { content: ''; position: absolute; inset: 0; border-radius: 20px; background: radial-gradient(800px circle at var(--mx,50%) var(--my,50%), rgba(79,70,229,.08), transparent 60%); opacity: 0; transition: opacity .4s; pointer-events: none; }
+  .feature-card:hover { transform: translateY(-4px); border-color: rgba(79,70,229,.2); }
+  .feature-card:hover::before { opacity: 1; }
+  .feature-card .icon-wrap { width: 52px; height: 52px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-bottom: 18px; }
+  .feature-card .icon-wrap.purple { background: rgba(79,70,229,.15); }
+  .feature-card .icon-wrap.cyan { background: rgba(6,182,212,.15); }
+  .feature-card .icon-wrap.pink { background: rgba(244,114,182,.15); }
+  .feature-card .icon-wrap.green { background: rgba(52,211,153,.15); }
+  .feature-card .icon-wrap.orange { background: rgba(251,146,60,.15); }
+  .feature-card .icon-wrap.blue { background: rgba(96,165,250,.15); }
+  .feature-card h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 8px; }
+  .feature-card p { color: rgba(255,255,255,.5); font-size: .9rem; line-height: 1.6; }
+
+  /* ── Steps ── */
+  .steps { padding: 80px 24px 100px; max-width: 900px; margin: 0 auto; }
+  .steps .label { text-align: center; color: #22d3ee; font-weight: 700; font-size: .85rem; text-transform: uppercase; letter-spacing: .12em; margin-bottom: 12px; }
+  .steps h2 { text-align: center; font-size: clamp(2rem, 4vw, 3rem); font-weight: 800; margin-bottom: 60px; }
+  .steps-grid { display: grid; gap: 24px; }
+  .step { display: flex; gap: 24px; align-items: flex-start; padding: 28px; border-radius: 16px; background: rgba(255,255,255,.02); border: 1px solid rgba(255,255,255,.06); }
+  .step .num { flex-shrink: 0; width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.1rem; background: linear-gradient(135deg, #4f46e5, #06b6d4); }
+  .step h3 { font-size: 1rem; font-weight: 700; margin-bottom: 4px; }
+  .step p { color: rgba(255,255,255,.45); font-size: .88rem; line-height: 1.5; }
+
+  /* ── CTA ── */
+  .cta { text-align: center; padding: 80px 24px 120px; }
+  .cta h2 { font-size: clamp(2rem, 4vw, 2.8rem); font-weight: 800; margin-bottom: 16px; }
+  .cta p { color: rgba(255,255,255,.5); margin-bottom: 32px; font-size: 1.05rem; }
+
+  /* ── Footer ── */
+  footer { text-align: center; padding: 32px 24px; border-top: 1px solid rgba(255,255,255,.04); color: rgba(255,255,255,.2); font-size: .8rem; }
+  footer a { color: rgba(255,255,255,.3); text-decoration: none; }
+  footer a:hover { color: rgba(255,255,255,.5); }
+
+  /* ── Responsive ── */
+  @media (max-width: 640px) {
+    nav { padding: 12px 16px; }
+    .hero { padding: 100px 16px 60px; }
+    .features { padding: 60px 16px; }
+    .steps { padding: 60px 16px; }
+    .step { flex-direction: column; }
+  }
 </style>
 </head>
 <body>
-<div class="container">
-  <h1>&#x2728; BG Remover</h1>
-  <p class="subtitle">Supprimez le fond de vos images en un clic, gratuitement et sans installation</p>
 
-  <div class="features">
-    <div class="feature">
-      <div class="icon">&#x1F916;</div>
-      <h3>IA puissante</h3>
-      <p>Mod&#xE8;le u2net pour des r&#xE9;sultats parfaits</p>
-    </div>
-    <div class="feature">
-      <div class="icon">&#x1F4A8;</div>
-      <h3>Gomme int&#xE9;gr&#xE9;e</h3>
-      <p>Corrigez les d&#xE9;tails &#xE0; la main</p>
-    </div>
-    <div class="feature">
-      <div class="icon">&#x1F3A8;</div>
-      <h3>Chroma key</h3>
-      <p>Suppression par couleur automatique</p>
-    </div>
-    <div class="feature">
-      <div class="icon">&#x1F310;</div>
-      <h3>Lien URL</h3>
-      <p>Importez depuis Pinterest ou le web</p>
-    </div>
-  </div>
-
-  <div class="card">
-    <h2>&#x2B07; T&#xE9;l&#xE9;chargement</h2>
-    {% if download_url %}
-      <a href="{{ download_url }}" class="btn">&#x1F4E5; T&#xE9;l&#xE9;charger BG Remover v{{ latest_version }}</a>
-    {% else %}
-      <a class="btn disabled">Bient&#xF4;t disponible</a>
-    {% endif %}
-    <p style="color:#8b949e; margin-top: 12px; font-size: 0.9rem;">
-      Windows 64-bit &#x2022; 120 MB &#x2022; Premier lancement : t&#xE9;l&#xE9;charge le mod&#xE8;le IA (~200 MB)
-    </p>
-  </div>
-
-  <div class="card">
-    <h2>&#x1F4A1; Fonctionnalit&#xE9;s</h2>
-    <ul>
-      <li>Suppression de fond par IA (mod&#xE8;le u2net)</li>
-      <li>Aper&#xE7;u avant/apr&#xE8;s avec zoom et panoramique</li>
-      <li>Gomme de r&#xE9;touche (cercle / carr&#xE9;, taille r&#xE9;glable)</li>
-      <li>Chroma key : d&#xE9;tection automatique de la couleur de fond</li>
-      <li>Pipette pour s&#xE9;lectionner une couleur manuellement</li>
-      <li>Import depuis fichier ou URL (Pinterest, etc.)</li>
-      <li>Export PNG / JPEG / WebP sans perte de qualit&#xE9;</li>
-      <li>Mises &#xE0; jour automatiques</li>
-      <li>Interface sombre, style GitHub</li>
-    </ul>
-  </div>
-
-  <footer>
-    BG Remover &#x2022; <a href="/login" style="color:#484f58; text-decoration:none;">Administration</a>
-  </footer>
+<div class="bg-wrap">
+  <div class="orb"></div>
+  <div class="orb"></div>
+  <div class="orb"></div>
+  <div class="grid"></div>
 </div>
+
+<nav>
+  <div class="logo"><span>&#x2728;</span> BG Remover</div>
+  <a href="/login">Administration</a>
+</nav>
+
+<section class="hero">
+  <div class="badge">&#x1F916; Propuls&#xE9; par u2net &#x2022; Gratuit</div>
+  <h1>Supprimez le fond<br>de vos images <span class="grad">en un clic</span></h1>
+  <p>Une application Windows puissante qui utilise l'intelligence artificielle pour d&#xE9;tacher vos images avec une pr&#xE9;cision chirurgicale. Gratuite, rapide, sans inscription.</p>
+  <div class="btns">
+    {% if download_url %}
+    <a href="{{ download_url }}" class="btn-primary">&#x1F4E5; T&#xE9;l&#xE9;charger v{{ latest_version }}</a>
+    {% endif %}
+    <a href="#features" class="btn-secondary">&#x2193; En savoir plus</a>
+  </div>
+  <div class="version-info">Windows 64-bit &#x2022; 120 MB &#x2022; Mod&#xE8;le IA t&#xE9;l&#xE9;charg&#xE9; au premier lancement</div>
+
+  <div class="mockup">
+    <svg viewBox="0 0 900 540" fill="none" style="background:#0d1117;">
+      <rect width="900" height="540" rx="16" fill="#161b22"/>
+      <rect x="24" y="16" width="852" height="52" rx="8" fill="#0d1117"/>
+      <rect x="40" y="28" width="160" height="28" rx="4" fill="#1f6feb" opacity=".3"/>
+      <rect x="220" y="34" width="80" height="16" rx="4" fill="#21262d"/>
+      <rect x="315" y="34" width="120" height="16" rx="4" fill="#21262d"/>
+      <rect x="448" y="34" width="60" height="16" rx="4" fill="#1f6feb" opacity=".5"/>
+      <rect x="520" y="34" width="40" height="16" rx="4" fill="#21262d"/>
+      <rect x="700" y="28" width="160" height="28" rx="4" fill="#1f6feb"/>
+      <rect x="750" y="36" width="80" height="12" rx="3" fill="white" opacity=".8"/>
+      <rect x="24" y="80" width="852" height="3" rx="1.5" fill="#1f6feb" opacity=".8"/>
+      <rect x="40" y="240" width="400" height="260" rx="12" fill="#21262d"/>
+      <rect x="120" y="340" width="240" height="60" rx="30" fill="#30363d"/>
+      <rect x="135" y="358" width="60" height="24" rx="12" fill="#3fb950"/>
+      <rect x="210" y="358" width="60" height="24" rx="12" fill="#f85149" opacity=".5"/>
+      <rect x="460" y="240" width="400" height="260" rx="12" fill="#21262d"/>
+      <rect x="540" y="340" width="240" height="60" rx="30" fill="#30363d"/>
+      <rect x="560" y="358" width="200" height="24" rx="12" fill="#3fb950"/>
+      <line x1="450" y1="370" x2="450" y2="370" stroke="#30363d" stroke-width="2"/>
+      <text x="80" y="160" fill="#8b949e" font-size="14" font-family="Inter">Avant</text>
+      <text x="500" y="160" fill="#8b949e" font-size="14" font-family="Inter">Apr&#xE8;s</text>
+      <rect x="40" y="460" width="820" height="40" rx="8" fill="#161b22" stroke="#21262d" stroke-width="1"/>
+      <text x="350" y="485" fill="#58a6ff" font-size="12" font-family="Inter">Fond supprim&#xE9; &#x2705;  &#x2190; Gomme disponible</text>
+    </svg>
+  </div>
+</section>
+
+<section class="features" id="features">
+  <div class="label">Fonctionnalit&#xE9;s</div>
+  <h2>Tout ce dont vous avez besoin</h2>
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="icon-wrap purple">&#x1F916;</div>
+      <h3>IA u2net</h3>
+      <p>Mod&#xE8;le de deep learning avanc&#xE9; pour d&#xE9;tecter et supprimer les arri&#xE8;re-plans avec une pr&#xE9;cision parfaite.</p>
+    </div>
+    <div class="feature-card">
+      <div class="icon-wrap cyan">&#x1F4A8;</div>
+      <h3>Gomme intelligente</h3>
+      <p>Corrigez les d&#xE9;tails &#xE0; la main avec une gomme r&#xE9;glable (cercle / carr&#xE9;, taille ajustable).</p>
+    </div>
+    <div class="feature-card">
+      <div class="icon-wrap pink">&#x1F3A8;</div>
+      <h3>Chroma key</h3>
+      <p>Suppression par couleur avec d&#xE9;tection automatique du fond + pipette pour s&#xE9;lection manuelle.</p>
+    </div>
+    <div class="feature-card">
+      <div class="icon-wrap green">&#x1F310;</div>
+      <h3>Import URL</h3>
+      <p>Chargez une image depuis n'importe quel lien : Pinterest, site web, ou URL directe. T&#xE9;l&#xE9;chargement auto.</p>
+    </div>
+    <div class="feature-card">
+      <div class="icon-wrap orange">&#x1F4BE;</div>
+      <h3>Export sans perte</h3>
+      <p>Enregistrez en PNG, JPEG ou WebP avec la qualit&#xE9; originale pr&#xE9;serv&#xE9;e (compress_level=0, quality=100).</p>
+    </div>
+    <div class="feature-card">
+      <div class="icon-wrap blue">&#x1F504;</div>
+      <h3>Mises &#xE0; jour auto</h3>
+      <p>L'application v&#xE9;rifie les mises &#xE0; jour au d&#xE9;marrage et les t&#xE9;l&#xE9;charge automatiquement.</p>
+    </div>
+  </div>
+</section>
+
+<section class="steps">
+  <div class="label">Comment faire</div>
+  <h2>Trois &#xE9;tapes suffisent</h2>
+  <div class="steps-grid">
+    <div class="step">
+      <div class="num">1</div>
+      <div>
+        <h3>T&#xE9;l&#xE9;chargez l'application</h3>
+        <p>Cliquez sur le bouton de t&#xE9;l&#xE9;chargement ci-dessus. Le fichier fait 120 MB, le mod&#xE8;le IA (200 MB) est t&#xE9;l&#xE9;charg&#xE9; au premier lancement.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="num">2</div>
+      <div>
+        <h3>Ouvrez une image</h3>
+        <p>Glissez-d&#xE9;posez ou cliquez pour choisir un fichier, ou collez un lien URL (Pinterest, image directe, page web).</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="num">3</div>
+      <div>
+        <h3>Supprimez le fond</h3>
+        <p>Cliquez sur &#xAB; Supprimer le fond &#xBB; et l'IA s'occupe du reste. Utilisez la gomme ou le chroma key pour perfectionner le r&#xE9;sultat.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="cta">
+  <h2>Pr&#xEA;t &#xE0; essayer ?</h2>
+  <p>Gratuit, sans inscription, sans limite d'utilisation.</p>
+  {% if download_url %}
+  <a href="{{ download_url }}" class="btn-primary">&#x1F4E5; T&#xE9;l&#xE9;charger BG Remover</a>
+  {% endif %}
+</section>
+
+<footer>
+  BG Remover &mdash; <a href="https://github.com/NoTime667-Lang/bg-remover-server" target="_blank">GitHub</a> &mdash; <a href="/login">Administration</a>
+</footer>
+
+<script>
+  document.querySelectorAll('.feature-card').forEach(card => {
+    card.addEventListener('mousemove', e => {
+      const rect = card.getBoundingClientRect();
+      card.style.setProperty('--mx', ((e.clientX - rect.left) / rect.width * 100) + '%');
+      card.style.setProperty('--my', ((e.clientY - rect.top) / rect.height * 100) + '%');
+    });
+  });
+</script>
+
 </body>
 </html>
