@@ -3,76 +3,88 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BG Remover - Stats</title>
+<title>BG Remover - Suppression de fond par IA</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0d1117; color: #e6edf3; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 20px; }
-  .container { max-width: 800px; width: 100%; }
-  h1 { font-size: 2.5rem; margin-bottom: 8px; background: linear-gradient(135deg, #58a6ff, #64ffda); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-  .subtitle { color: #8b949e; margin-bottom: 40px; }
-  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 40px; }
-  .card { background: #161b22; border: 1px solid #21262d; border-radius: 12px; padding: 24px; text-align: center; }
-  .card .number { font-size: 3rem; font-weight: bold; color: #58a6ff; }
-  .card .label { color: #8b949e; margin-top: 8px; font-size: 0.9rem; }
-  .card .number.green { color: #3fb950; }
-  .update-box { background: #161b22; border: 1px solid #21262d; border-radius: 12px; padding: 24px; margin-bottom: 40px; }
-  .update-box h2 { color: #d29922; margin-bottom: 12px; }
-  .update-box code { background: #21262d; padding: 2px 8px; border-radius: 4px; }
-  table { width: 100%; border-collapse: collapse; background: #161b22; border-radius: 12px; overflow: hidden; }
-  th, td { padding: 10px 16px; text-align: left; border-bottom: 1px solid #21262d; }
-  th { background: #21262d; color: #8b949e; font-weight: 600; font-size: 0.85rem; text-transform: uppercase; }
-  td { font-size: 0.9rem; }
-  .badge { display: inline-block; background: #1f6feb; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.8rem; }
-  .footer { margin-top: 40px; color: #484f58; font-size: 0.85rem; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0d1117; color: #e6edf3; min-height: 100vh; }
+  .container { max-width: 720px; margin: 0 auto; padding: 60px 24px; }
+  h1 { font-size: 3rem; margin-bottom: 8px; background: linear-gradient(135deg, #58a6ff, #64ffda); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .subtitle { color: #8b949e; font-size: 1.2rem; margin-bottom: 40px; }
+  .card { background: #161b22; border: 1px solid #21262d; border-radius: 12px; padding: 32px; margin-bottom: 24px; }
+  .card h2 { color: #58a6ff; margin-bottom: 16px; }
+  .card p { color: #c9d1d9; line-height: 1.6; margin-bottom: 12px; }
+  .card ul { color: #c9d1d9; padding-left: 20px; line-height: 1.8; }
+  .btn { display: inline-block; background: #1f6feb; color: white; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 1.1rem; margin-top: 16px; transition: background 0.2s; }
+  .btn:hover { background: #388bfd; }
+  .btn.disabled { background: #21262d; color: #484f58; cursor: not-allowed; }
+  .badge { display: inline-block; background: #21262d; color: #8b949e; padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; }
+  .features { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+  .feature { background: #161b22; border: 1px solid #21262d; border-radius: 8px; padding: 20px; }
+  .feature .icon { font-size: 2rem; margin-bottom: 8px; }
+  .feature h3 { font-size: 1rem; margin-bottom: 6px; }
+  .feature p { color: #8b949e; font-size: 0.9rem; }
+  footer { text-align: center; color: #484f58; font-size: 0.85rem; margin-top: 60px; }
+  @media (max-width: 600px) { .features { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
 <div class="container">
   <h1>&#x2728; BG Remover</h1>
-  <p class="subtitle">Tableau de bord des installations</p>
+  <p class="subtitle">Supprimez le fond de vos images en un clic, gratuitement et sans installation</p>
 
-  <div class="cards">
-    <div class="card">
-      <div class="number">{{ total }}</div>
-      <div class="label">Installations totales</div>
+  <div class="features">
+    <div class="feature">
+      <div class="icon">&#x1F916;</div>
+      <h3>IA puissante</h3>
+      <p>Mod&#xE8;le u2net pour des r&#xE9;sultats parfaits</p>
     </div>
-    <div class="card">
-      <div class="number green">{{ last_24h }}</div>
-      <div class="label">Actifs derni&#xE8;res 24h</div>
+    <div class="feature">
+      <div class="icon">&#x1F4A8;</div>
+      <h3>Gomme int&#xE9;gr&#xE9;e</h3>
+      <p>Corrigez les d&#xE9;tails &#xE0; la main</p>
     </div>
-    <div class="card">
-      <div class="number">{{ installs|length }}</div>
-      <div class="label">Utilisateurs uniques</div>
+    <div class="feature">
+      <div class="icon">&#x1F3A8;</div>
+      <h3>Chroma key</h3>
+      <p>Suppression par couleur automatique</p>
+    </div>
+    <div class="feature">
+      <div class="icon">&#x1F310;</div>
+      <h3>Lien URL</h3>
+      <p>Importez depuis Pinterest ou le web</p>
     </div>
   </div>
 
-  <div class="update-box">
-    <h2>&#x1F516; Derni&#xE8;re version : <code>{{ latest_version }}</code></h2>
-    <p style="color:#8b949e;">Les utilisateurs avec une version ant&#xE9;rieure recevront une notification de mise &#xE0; jour.</p>
+  <div class="card">
+    <h2>&#x2B07; T&#xE9;l&#xE9;chargement</h2>
+    {% if download_url %}
+      <a href="{{ download_url }}" class="btn">&#x1F4E5; T&#xE9;l&#xE9;charger BG Remover v{{ latest_version }}</a>
+    {% else %}
+      <a class="btn disabled">Bient&#xF4;t disponible</a>
+    {% endif %}
+    <p style="color:#8b949e; margin-top: 12px; font-size: 0.9rem;">
+      Windows 64-bit &#x2022; 120 MB &#x2022; Premier lancement : t&#xE9;l&#xE9;charge le mod&#xE8;le IA (~200 MB)
+    </p>
   </div>
 
-  <table>
-    <thead>
-      <tr>
-        <th>Utilisateur</th>
-        <th>Version</th>
-        <th>Derni&#xE8;re vue</th>
-        <th>Lancements</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for i in installs|sort(attribute='last_seen', reverse=True) %}
-      <tr>
-        <td><span class="badge">{{ i.id[:8] }}...</span></td>
-        <td>v{{ i.version }}</td>
-        <td>{{ i.last_seen[:19] }}</td>
-        <td>{{ i.count }}</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+  <div class="card">
+    <h2>&#x1F4A1; Fonctionnalit&#xE9;s</h2>
+    <ul>
+      <li>Suppression de fond par IA (mod&#xE8;le u2net)</li>
+      <li>Aper&#xE7;u avant/apr&#xE8;s avec zoom et panoramique</li>
+      <li>Gomme de r&#xE9;touche (cercle / carr&#xE9;, taille r&#xE9;glable)</li>
+      <li>Chroma key : d&#xE9;tection automatique de la couleur de fond</li>
+      <li>Pipette pour s&#xE9;lectionner une couleur manuellement</li>
+      <li>Import depuis fichier ou URL (Pinterest, etc.)</li>
+      <li>Export PNG / JPEG / WebP sans perte de qualit&#xE9;</li>
+      <li>Mises &#xE0; jour automatiques</li>
+      <li>Interface sombre, style GitHub</li>
+    </ul>
+  </div>
 
-  <p class="footer">BG Remover &mdash; Tableau de bord automatique</p>
+  <footer>
+    BG Remover &#x2022; <a href="/login" style="color:#484f58; text-decoration:none;">Administration</a>
+  </footer>
 </div>
 </body>
 </html>
