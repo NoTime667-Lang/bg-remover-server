@@ -71,13 +71,15 @@
   </div>
 
   <div class="section">
-    <h2>&#x1F4DD; Instructions mise &#xE0; jour</h2>
-    <pre style="background:#0d1117; padding:16px; border-radius:8px; font-size:0.85rem; overflow-x:auto; color:#8b949e;">curl -X POST https://bg-remover-api-jt6r.onrender.com/api/admin/register-version \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer VOTRE_MOT_DE_PASSE" \
-  -d '{"version":"1.1.0","notes":"Description des changements","release_url":"https://github.com/NoTime667-Lang/bg-remover-server/releases/download/v1.1.0/BG.Remover.1.1.0.exe"}'</pre>
+    <h2>&#x1F4DD; Publier une mise &#xE0; jour</h2>
+    <p style="color:#8b949e; font-size:0.85rem; margin-bottom:12px;">Dans PowerShell, &#xE0; la racine du projet :</p>
+    <pre style="background:#0d1117; padding:16px; border-radius:8px; font-size:0.85rem; overflow-x:auto; color:#8b949e;">$token = "VOTRE_MOT_DE_PASSE"
+$uri = "https://bg-remover-api-jt6r.onrender.com/api/admin/upload"
+Invoke-RestMethod -Uri $uri -Method POST `
+  -Form @{ file = (Get-Item "dist\BG Remover.zip"); version = "1.0.0"; notes = "Description" } `
+  -Headers @{ Authorization = "Bearer $token" }</pre>
     <p style="color:#8b949e; font-size:0.85rem; margin-top:8px;">
-      Avant : cr&#xE9;ez une <strong>Release</strong> sur GitHub avec le fichier .exe en pi&#xE8;ce jointe.
+      Le fichier sera h&#xE9;berg&#xE9; directement sur le serveur. Les utilisateurs recevront la mise &#xE0; jour automatiquement.
     </p>
   </div>
 

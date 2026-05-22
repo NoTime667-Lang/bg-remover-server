@@ -12,8 +12,8 @@ app.secret_key = os.environ.get("SECRET_KEY", os.urandom(24).hex())
 DATA_DIR = os.path.join(os.path.dirname(__file__), "data")
 INSTALLS_FILE = os.path.join(DATA_DIR, "installs.json")
 VERSIONS_FILE = os.path.join(DATA_DIR, "versions.json")
-# Updates hosted on GitHub Releases (Render has ephemeral storage)
-GITHUB_REPO = os.environ.get("GITHUB_REPO", "NoTime667-Lang/bg-remover-server")
+# Updates hosted locally (uploaded via admin API)
+UPLOAD_DIR = os.path.join(DATA_DIR, "uploads")
 
 os.makedirs(DATA_DIR, exist_ok=True)
 os.makedirs(UPDATES_DIR, exist_ok=True)
@@ -161,10 +161,15 @@ def download(version):
     versions = _load_versions()
     if version not in versions.get("versions", {}):
         return jsonify({"error": "Version not found"}), 404
-    release_url = versions["versions"][version].get("release_url")
-    if release_url:
-        return redirect(release_url)
-    return jsonify({"error": "Download URL not configured for this version"}), 404
+    info = versions["versions"][version]
+    fname = info.get("filename", f"BG Remover {version}.zip")
+    fpath = os.path.join(UPLOAD_DIR, fname)
+    if not os.path.exists(fpath):
+        # Fallback to release_url if configured
+        if info.get("release_url"):
+            return redirect(info["release_url"])
+        return jsonify({"error": "File not uploaded yet"}), 404
+    return send_file(fpath, as_attachment=True, download_name=fname)
 
 
 # ── Admin API ──
@@ -183,13 +188,50 @@ def register_version():
 
     versions = _load_versions()
     versions["latest"] = version
+    existing = versions["versions"].get(version, {})
     versions["versions"][version] = {
         "notes": notes,
-        "release_url": data.get("release_url", ""),
+        "release_url": data.get("release_url", existing.get("release_url", "")),
+        "filename": data.get("filename", existing.get("filename", f"BG Remover {version}.zip")),
         "released": datetime.now(timezone.utc).isoformat(),
     }
     _save_versions(versions)
     return jsonify({"ok": True})
+
+
+@app.route("/api/admin/upload", methods=["POST"])
+def upload_file():
+    auth = request.headers.get("Authorization", "")
+    if auth != f"Bearer {ADMIN_PASSWORD}":
+        return jsonify({"error": "Unauthorized"}), 401
+
+    if "file" not in request.files:
+        return jsonify({"error": "No file provided"}), 400
+
+    f = request.files["file"]
+    version = request.form.get("version", "")
+    notes = request.form.get("notes", "")
+
+    if not version:
+        return jsonify({"error": "version required"}), 400
+
+    os.makedirs(UPLOAD_DIR, exist_ok=True)
+    fname = f"BG Remover {version}.zip"
+    fpath = os.path.join(UPLOAD_DIR, fname)
+    f.save(fpath)
+
+    # Register version
+    versions = _load_versions()
+    versions["latest"] = version
+    versions["versions"][version] = {
+        "notes": notes,
+        "release_url": "",
+        "filename": fname,
+        "released": datetime.now(timezone.utc).isoformat(),
+    }
+    _save_versions(versions)
+
+    return jsonify({"ok": True, "version": version, "size": os.path.getsize(fpath)})
 
 
 if __name__ == "__main__":
