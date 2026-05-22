@@ -29,8 +29,15 @@
   nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 16px 32px; display: flex; justify-content: space-between; align-items: center; backdrop-filter: blur(16px); background: rgba(10,10,15,.6); border-bottom: 1px solid rgba(255,255,255,.06); }
   nav .logo { font-size: 1.3rem; font-weight: 800; background: linear-gradient(135deg, #818cf8, #22d3ee); -webkit-background-clip: text; -webkit-text-fill-color: transparent; display: flex; align-items: center; gap: 8px; }
   nav .logo span { font-size: 1.4rem; -webkit-text-fill-color: initial; }
-  nav a { color: rgba(255,255,255,.6); text-decoration: none; font-size: .85rem; font-weight: 500; transition: color .2s; }
+    nav a { color: rgba(255,255,255,.6); text-decoration: none; font-size: .85rem; font-weight: 500; transition: color .2s; }
   nav a:hover { color: #fff; }
+
+  /* ── Floating download bar ── */
+  .float-dl { position: fixed; bottom: 0; left: 0; right: 0; z-index: 200; background: rgba(10,10,15,.85); backdrop-filter: blur(20px); border-top: 1px solid rgba(255,255,255,.08); padding: 14px 32px; display: flex; align-items: center; justify-content: center; gap: 20px; flex-wrap: wrap; transform: translateY(100%); transition: transform .4s cubic-bezier(.22,1,.36,1); }
+  .float-dl.show { transform: translateY(0); }
+  .float-dl span { color: rgba(255,255,255,.7); font-size: .9rem; font-weight: 500; }
+  .float-dl .btn-dl { display: inline-flex; align-items: center; gap: 8px; padding: 12px 32px; border-radius: 12px; font-weight: 700; font-size: .95rem; text-decoration: none; color: #fff; background: linear-gradient(135deg, #4f46e5, #06b6d4); transition: transform .2s, box-shadow .2s; box-shadow: 0 0 20px rgba(79,70,229,.25); }
+  .float-dl .btn-dl:hover { transform: translateY(-1px) scale(1.03); box-shadow: 0 0 40px rgba(79,70,229,.5); }
 
   /* ── Hero ── */
   .hero { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 120px 24px 80px; position: relative; }
@@ -39,10 +46,11 @@
   .hero h1 .grad { background: linear-gradient(135deg, #818cf8 0%, #22d3ee 50%, #f472b6 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-size: 200% 200%; animation: gradShift 6s ease-in-out infinite; }
   .hero p { font-size: clamp(1rem, 2vw, 1.25rem); color: rgba(255,255,255,.5); max-width: 560px; line-height: 1.7; margin-bottom: 36px; animation: fadeUp .6s .4s both; }
   .hero .btns { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; animation: fadeUp .6s .5s both; }
-  .hero .btn-primary { display: inline-flex; align-items: center; gap: 10px; padding: 16px 40px; border-radius: 14px; font-weight: 700; font-size: 1.05rem; text-decoration: none; color: #fff; background: linear-gradient(135deg, #4f46e5, #06b6d4); position: relative; overflow: hidden; transition: transform .2s, box-shadow .2s; }
-  .hero .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(79,70,229,.4); }
+  .hero .btn-primary { display: inline-flex; align-items: center; gap: 10px; padding: 16px 40px; border-radius: 14px; font-weight: 700; font-size: 1.05rem; text-decoration: none; color: #fff; background: linear-gradient(135deg, #4f46e5, #06b6d4); position: relative; overflow: hidden; transition: transform .2s, box-shadow .2s; box-shadow: 0 0 30px rgba(79,70,229,.3); animation: glowPulse 2s ease-in-out infinite; }
+  .hero .btn-primary:hover { transform: translateY(-2px) scale(1.05); box-shadow: 0 0 50px rgba(79,70,229,.6); }
   .hero .btn-primary::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, transparent 0%, rgba(255,255,255,.15) 50%, transparent 100%); transform: translateX(-100%); transition: transform .6s; }
   .hero .btn-primary:hover::before { transform: translateX(100%); }
+  @keyframes glowPulse { 0%,100% { box-shadow: 0 0 20px rgba(79,70,229,.3); } 50% { box-shadow: 0 0 50px rgba(79,70,229,.6); } }
   .hero .btn-secondary { display: inline-flex; align-items: center; gap: 8px; padding: 16px 32px; border-radius: 14px; font-weight: 600; font-size: 1rem; text-decoration: none; color: rgba(255,255,255,.7); background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.08); transition: all .2s; }
   .hero .btn-secondary:hover { background: rgba(255,255,255,.1); color: #fff; }
   .hero .version-info { margin-top: 24px; color: rgba(255,255,255,.25); font-size: .8rem; animation: fadeUp .6s .6s both; }
@@ -84,9 +92,14 @@
   .step p { color: rgba(255,255,255,.45); font-size: .88rem; line-height: 1.5; }
 
   /* ── CTA ── */
-  .cta { text-align: center; padding: 80px 24px 120px; }
+  .cta { text-align: center; padding: 100px 24px 140px; position: relative; }
+  .cta::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at center, rgba(79,70,229,.12) 0%, transparent 70%); pointer-events: none; }
   .cta h2 { font-size: clamp(2rem, 4vw, 2.8rem); font-weight: 800; margin-bottom: 16px; }
-  .cta p { color: rgba(255,255,255,.5); margin-bottom: 32px; font-size: 1.05rem; }
+  .cta p { color: rgba(255,255,255,.5); margin-bottom: 40px; font-size: 1.15rem; }
+  .cta .btn-primary { display: inline-flex; align-items: center; gap: 12px; padding: 20px 52px; border-radius: 16px; font-weight: 800; font-size: 1.2rem; text-decoration: none; color: #fff; background: linear-gradient(135deg, #4f46e5, #06b6d4); position: relative; overflow: hidden; transition: transform .2s, box-shadow .2s; box-shadow: 0 0 30px rgba(79,70,229,.3); animation: glowPulse 2s ease-in-out infinite; }
+  .cta .btn-primary:hover { transform: translateY(-3px) scale(1.05); box-shadow: 0 0 60px rgba(79,70,229,.6); }
+  .cta .btn-primary::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, transparent 0%, rgba(255,255,255,.15) 50%, transparent 100%); transform: translateX(-100%); transition: transform .6s; }
+  .cta .btn-primary:hover::before { transform: translateX(100%); }
 
   /* ── Footer ── */
   footer { text-align: center; padding: 32px 24px; border-top: 1px solid rgba(255,255,255,.04); color: rgba(255,255,255,.2); font-size: .8rem; }
@@ -230,11 +243,30 @@
   {% endif %}
 </section>
 
+{% if download_url %}
+<div class="float-dl" id="floatDl">
+  <span>&#x2B50; Nouveau&nbsp;: BG Remover v{{ latest_version }} disponible</span>
+  <a href="{{ download_url }}" class="btn-dl">&#x1F4E5; T&#xE9;l&#xE9;charger</a>
+</div>
+{% endif %}
+
 <footer>
   BG Remover &mdash; <a href="https://github.com/NoTime667-Lang/bg-remover-server" target="_blank">GitHub</a> &mdash; <a href="/login">Administration</a>
 </footer>
 
 <script>
+  // Floating download bar
+  const floatDl = document.getElementById('floatDl');
+  if (floatDl) {
+    let shown = false;
+    window.addEventListener('scroll', () => {
+      if (!shown && window.scrollY > 400) {
+        floatDl.classList.add('show');
+        shown = true;
+      }
+    });
+  }
+
   document.querySelectorAll('.feature-card').forEach(card => {
     card.addEventListener('mousemove', e => {
       const rect = card.getBoundingClientRect();
