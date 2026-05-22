@@ -16,7 +16,7 @@ VERSIONS_FILE = os.path.join(DATA_DIR, "versions.json")
 UPLOAD_DIR = os.path.join(DATA_DIR, "uploads")
 
 os.makedirs(DATA_DIR, exist_ok=True)
-os.makedirs(UPDATES_DIR, exist_ok=True)
+os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "admin123")
 
