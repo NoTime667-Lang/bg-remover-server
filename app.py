@@ -12,7 +12,8 @@ app.secret_key = os.environ.get("SECRET_KEY", os.urandom(24).hex())
 DATA_DIR = os.path.join(os.path.dirname(__file__), "data")
 INSTALLS_FILE = os.path.join(DATA_DIR, "installs.json")
 VERSIONS_FILE = os.path.join(DATA_DIR, "versions.json")
-UPDATES_DIR = os.path.join(DATA_DIR, "updates")
+# Updates hosted on GitHub Releases (Render has ephemeral storage)
+GITHUB_REPO = os.environ.get("GITHUB_REPO", "NoTime667-Lang/bg-remover-server")
 
 os.makedirs(DATA_DIR, exist_ok=True)
 os.makedirs(UPDATES_DIR, exist_ok=True)
@@ -160,13 +161,10 @@ def download(version):
     versions = _load_versions()
     if version not in versions.get("versions", {}):
         return jsonify({"error": "Version not found"}), 404
-    fname = versions["versions"][version].get("filename")
-    if not fname:
-        return jsonify({"error": "No file for this version"}), 404
-    fpath = os.path.join(UPDATES_DIR, fname)
-    if not os.path.exists(fpath):
-        return jsonify({"error": "File not available"}), 404
-    return send_file(fpath, as_attachment=True, download_name=fname)
+    release_url = versions["versions"][version].get("release_url")
+    if release_url:
+        return redirect(release_url)
+    return jsonify({"error": "Download URL not configured for this version"}), 404
 
 
 # ── Admin API ──
@@ -187,7 +185,7 @@ def register_version():
     versions["latest"] = version
     versions["versions"][version] = {
         "notes": notes,
-        "filename": data.get("filename", f"BG Remover {version}.exe"),
+        "release_url": data.get("release_url", ""),
         "released": datetime.now(timezone.utc).isoformat(),
     }
     _save_versions(versions)
